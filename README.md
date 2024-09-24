@@ -1,4 +1,5 @@
 # GEMstack: software for CS588 Autonomous Vehicle System Engineering
+[Screencast from 07-16-2024 01_51_53 PM.webm](https://github.com/user-attachments/assets/4ff0311b-8c6d-40dc-b889-02f1a4e61ac1)
 
 📖 [Online documentation](https://gemstack.readthedocs.org)
 
