@@ -16,23 +16,14 @@ drive:
     planning:
         route_planning:
             type: StaticRoutePlanner
-            # args: [!relative_path '../GEMstack/knowledge/routes/xyhead_highbay_backlot_oval.csv']
             args: [!relative_path '../GEMstack/knowledge/routes/forward_15m.csv']
-        motion_planning:
-            type: RouteToTrajectoryPlanner
-            args: [null]  #desired speed in m/s.  If null, this will keep the route untimed for the trajectory tracker
+        motion_planning: pedestrian_avoidance_planning.PedestrianAvoidanceMotionPlanner
+            # type: RouteToTrajectoryPlanner
+            # args: [null]  #desired speed in m/s.  If null, this will keep the route untimed for the trajectory tracker
         trajectory_tracking:
-            # type: pure_pursuit.PurePursuitTrajectoryTracker
-            # args: {desired_speed: 1.0}
-
-            type: MPC.MPCController
-            args: {dt: 2.0, horizon: 10.0, Q: [1, 1, 1, 1], R: [150, 1, 1, 1]} 
-
-            # type: MPC_kinematics.MPCController
-            # args: {dt: 2.0, horizon: 10.0, Q: [1, 1, 1, 1], R: [500, 10, 10, 10], fixed: True, evaluation: True} 
-            
-            # time discretization, time horizon, state cost matrix, and control cost matrix  
-            print: True
+            type: pure_pursuit.PurePursuitTrajectoryTracker
+            args: {desired_speed: 1.5}  #approximately 5mph
+            print: False
 log:
     # Specify the top-level folder to save the log files.  Default is 'logs'
     #folder : 'logs' 
@@ -73,7 +64,7 @@ variants:
         run:
             mode: simulation
             vehicle_interface:
-                type: gem_simulator.GEMDoubleIntegratorSimulationInterface
+                type: gem_simulator.GEMDoubleIntegratorSimulationInterface  
                 args:
                     scene: !relative_path '../scenes/xyhead_demo.yaml'
 
@@ -81,6 +72,7 @@ variants:
                 perception:
                     state_estimation : OmniscientStateEstimator
                     agent_detection : OmniscientAgentDetector
+    
             visualization: !include "klampt_visualization.yaml"
             #visualization: !include "mpl_visualization.yaml"
     log_ros:
