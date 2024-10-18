@@ -20,17 +20,13 @@ from tf.transformations import euler_from_quaternion, quaternion_from_euler
 
 # GEM PACMod Headers
 from pacmod_msgs.msg import PositionWithSpeed, PacmodCmd, SystemRptFloat, VehicleSpeedRpt, GlobalRpt
-import time
+
 # OpenCV and cv2 bridge
 import cv2
 import numpy as np
 from ...utils import conversions
-
-@dataclass 
-class GNSSReading:
-    pose : ObjectPose
-    speed : float
-    status : str
+import time
+from .gnss_reading import GNSSReading
 
 class GEMHardwareInterface(GEMInterface):
     """Interface for connnecting to the physical GEM e2 vehicle."""
@@ -66,7 +62,6 @@ class GEMHardwareInterface(GEMInterface):
         # -------------------- PACMod setup --------------------
         # GEM vehicle enable
         self.enable_pub = rospy.Publisher('/pacmod/as_rx/enable', Bool, queue_size=1)
-        self.enable_sub = rospy.Subscriber('/pacmod/as_tx/enable', Bool, self.pacmod_enable_callback)
         self.pacmod_enable = False
 
         # GEM vehicle gear control, neutral, forward and reverse, publish once
@@ -107,6 +102,10 @@ class GEMHardwareInterface(GEMInterface):
         """
 
         #TODO: publish TwistStamped to /front_radar/front_radar/vehicle_motion to get better radar tracks
+        
+        #subscribers should go last because the callback might be called before the object is initialized
+        self.enable_sub = rospy.Subscriber('/pacmod/as_tx/enable', Bool, self.pacmod_enable_callback)
+
 
     def start(self):
         if settings.get('vehicle.enable_through_joystick',True):
@@ -151,7 +150,6 @@ class GEMHardwareInterface(GEMInterface):
         return self.last_reading
 
     def subscribe_sensor(self, name, callback, type = None):
-        print(f"topc: {self.ros_sensor_topics[name]}!!!!!!!!!!!!!!!!!!!!!!!")
         if name == 'gnss':
             topic = self.ros_sensor_topics[name]
             if topic.endswith('inspva'):
@@ -181,10 +179,10 @@ class GEMHardwareInterface(GEMInterface):
                 else:
                     def callback_with_gnss_reading(msg: INSNavGeod):
                         pose = ObjectPose(ObjectFrameEnum.GLOBAL,
-                                    x=msg.longitude,
-                                    y=msg.latitude,
+                                    t=self.time(),
+                                    x=math.degrees(msg.longitude),
+                                    y=math.degrees(msg.latitude),
                                     z=msg.height,
-                                    t=int(time.time()),
                                     yaw=math.radians(msg.heading),  #heading from north in degrees (TODO: maybe?? check this)
                                     roll=math.radians(msg.roll),
                                     pitch=math.radians(msg.pitch),

@@ -2,6 +2,7 @@
 
 # Configure settings for the vehicle / vehicle model
 vehicle:  !include ../vehicle/gem_e4.yaml
+carla_vehicle: !include ../vehicle/carla.yaml
 
 #arguments for algorithm components here
 model_predictive_controller:
@@ -21,6 +22,11 @@ control:
         pid_i: 0.1
         pid_d: 0.0
 
+A_star_planner:  
+    !include A_star_planner.yaml
+MPC_planner:
+    !include MPC_planner.yaml
+
 #configure the simulator, if using
 simulator:
     dt: 0.01
@@ -32,23 +38,3 @@ simulator:
         #velocity_noise:
         #    constant: 0.04  #4cm/s noise
         #    linear: 0.02    #2% noise
-# longitudinal_planning:
-#     no_of_samples: 20
-#     rate: 20
-#     vehicle_prop:
-#         acc: 0.5
-#         dec: 2.0
-#         max_vel: 1.0
-longitudinal_planning:
-    no_of_samples: 50
-    rate: 10
-    vehicle_prop:
-        acc: 0.5
-        dec: 2.0
-        max_vel: 1.0
-pedestrian_avoidance:
-    lat : 2.5
-    long: 1
-    acc: 1.0
-    desired_speed : 2.0
-    dec : 1.0
